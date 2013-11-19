@@ -73,10 +73,10 @@ print
 trello_db_board_url = raw_input('Trello DB board URL: ')
 
 # Get the board IDs from their URLs
-m = re.match('/b/([^/])', trello_grocery_board_url)
-trello_grocery_board = m.group(1)
-m = re.match('/b/([^/])', trello_db_board_url)
-trello_db_board = m.group(1)
+m = re.findall('/b/(.*)[\/]', trello_grocery_board_url )
+trello_grocery_board = m.pop()
+m = re.findall('/b/(.*)[\/]', trello_db_board_url)
+trello_db_board = m.pop()
 trello_grocery_list = 'Groceries'
 
 
@@ -112,7 +112,7 @@ print "And lastly, enter the path to your scanner device. If you don't know"
 print "this and you're using a Raspberry Pi, the default should be fine."
 print
 scanner_device = raw_input('Scanner device [/dev/input/event0]: ')
-if scanner_device = '':
+if scanner_device == '':
     scanner_device = '/dev/input/event0'
 
 
@@ -215,7 +215,7 @@ redirect_stderr=true''')
 sup_oscar_scan.close()
 
 sup_oscar_web = open('/etc/supervisor/conf.d/oscar_web.conf', 'w')
-sup_oscar_scan.write('''[program:oscar_web]
+sup_oscar_web.write('''[program:oscar_web]
 
 command=/usr/local/bin/node --debug /var/oscar/web/app.js
 directory=/var/oscar/web
@@ -230,7 +230,7 @@ print '############################################################'
 print
 print 'Done! Your new grocery list can be found at:'
 print
-print '    {0}'.format(grocery_board_url)
+print '    {0}'.format(trello_grocery_board_url)
 print
 print 'If everything worked, then you should be able to start scanning'
 print 'barcodes with oscar. Check out the logs of the scanner process and'

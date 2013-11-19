@@ -1,4 +1,4 @@
-import trello
+import trello, json
 
 
 class TrelloDB:
