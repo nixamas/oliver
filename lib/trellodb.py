@@ -1,6 +1,4 @@
-import trello
-import json
-
+import trello, json
 
 class TrelloDB:
     """Implements a document store on top of Trello."""
