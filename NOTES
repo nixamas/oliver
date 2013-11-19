@@ -1,0 +1,3 @@
+Logs can be found @
+/var/lib/supervisor/log/oscar_scan.log
+/var/lib/supervisor/log/oscar_web.log
