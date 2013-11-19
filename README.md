@@ -1,15 +1,14 @@
 Oliver
 =====
 
-Oliver automatically adds things to your grocery list when you run out. You
-just scan the item's barcode on its way into the trash.
+Oliver is a tool to automatically add things to your grocery list when you are out of an item.
+Just scan the item's barcode and it will be added to your list. 
 
 Hardware
 -----
 
 I run Oliver on a [Raspberry Pi][raspberry-pi] under [Raspbian][raspbian]. I use
 [this barcode scanner][scanner-amazon].
-
 
 Software
 -----
