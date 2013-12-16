@@ -23,5 +23,6 @@ class TrelloDB:
 
     def insert(self, table_name, item):
         """Inserts the given item (a dict) into the given table."""
+        print "Inserting {0} into table :: {1}".format(str(item),str(table_name))
         list_id = self._get_list_id(table_name)
         self._api.lists.new_card(list_id, json.dumps(item))

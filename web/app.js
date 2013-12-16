@@ -14,6 +14,8 @@ var trellodb = require('./lib/trellodb').connect();
 
 var app = express();
 
+app.set('title', 'Oliver');
+
 // all environments
 app.set('port', oscar_conf['port'] || 80);
 app.set('views', path.join(__dirname, 'views'));
@@ -37,14 +39,21 @@ if ('development' == app.get('env')) {
 
 
 app.param('opp_id', function(req, res, next, id) {
+  console.log("param opp_id lookup :: " + id);
   trellodb.lookup('learning_opportunities',
                   function(row) {
+		    console.log("found this row :: " + row);
                     return(row.opp_id == req.params.opp_id)
                   },
                   function(result_rows) {
+	            console.log("more debug data here :: " +  result_rows);
                     app.locals.opp_data = result_rows[0];
                     next();
                   });
+});
+
+app.get('/', function(req, res){
+	  res.send('hello oliver');
 });
 
 app.get('/learn-barcode/:opp_id', routes.learn_barcode);

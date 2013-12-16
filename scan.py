@@ -48,7 +48,7 @@ class UPCAPI:
         return base64.b64encode(h.digest())
 
     def _url(self, upc):
-        return '{0}/?upcCode={1}&field_names=description&language=en&app_key={2}&signature={3}'.format(
+        return '{0}/?upcCode={1}&language=en&app_key={2}&signature={3}'.format(
             self.BASEURL, upc, self._app_key, self._signature(upc))
 
     def get_description(self, upc):
@@ -56,7 +56,9 @@ class UPCAPI:
         
            `upc`: A string containing the UPC."""
         url = self._url(upc)
+        print "url :: {0}".format(str(url))
         json_blob = urllib2.urlopen(url).read()
+        #print "json_blob ::  \n {0}".format(str(json_blob))
         return json.loads(json_blob)['description']
 
 
@@ -81,24 +83,29 @@ def create_barcode_opp(trello_db, barcode):
     """Creates a learning opportunity for the given barcode and writes it to Trello.
     
        Returns the dict."""
+    print "create_barcode_opp"
     opp = {
         'type': 'barcode',
         'opp_id': generate_opp_id(),
         'barcode': barcode,
         'created_dt': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     }
+    print "opportunity :: {0}".format(opp)
 
     trello_db.insert('learning_opportunities', opp)
     return opp
 
 
 def publish_barcode_opp(opp):
-    message = '''Hi! Oscar here. You scanned a code I didn't recognize. Care to fill me in?  {0}'''.format(opp_url(opp))
+    print "publish barcode opportunity"
+    message = '''Hi! Oliver here. You scanned a code I didn't recognize. Care to fill me in?  {0}'''.format(opp_url(opp))
     subject = '''Didn't Recognize Barcode'''
     communication_method = conf.get()['communication_method']
     if communication_method == 'email':
+        print "sending email"
         send_via_email(message, subject)
     else:
+        print "send phone message"
         send_via_twilio(message)
 
 def send_via_twilio(msg):
@@ -148,6 +155,7 @@ def match_description_rule(trello_db, desc):
 def add_grocery_item(trello_api, item):
     """Adds the given item to the grocery list (if it's not already present)."""
     # Get the current grocery list
+    print "add_grocery_item"
     grocery_board_id = conf.get()['trello_grocery_board']
     all_lists = trello_api.boards.get_list(grocery_board_id)
     grocery_list = [x for x in all_lists if x['name'] == conf.get()['trello_grocery_list']][0]
@@ -161,7 +169,7 @@ def add_grocery_item(trello_api, item):
     else:
         print "Item '{0}' is already on the grocery list; not adding".format(item)
 
-
+print "Reading configuration file for data..."
 trello_api = trello.TrelloApi(conf.get()['trello_app_key'])
 trello_api.set_token(conf.get()['trello_token'])
 trello_db = trellodb.TrelloDB(trello_api, conf.get()['trello_db_board'])
@@ -189,17 +197,20 @@ while True:
  
     # Parse the binary data as a barcode
     barcode = parse_scanner_data(scanner_data)
-    print "Scanned barcode '{0}'".format(barcode)
+    print "Scanned barcode '{0}'".format(str(barcode))
 
     # Match against barcode rules
     barcode_rule = match_barcode_rule(trello_db, barcode)
+    print "Barcode Rule :: {0}".format(str(barcode_rule))
     if barcode_rule is not None:
+        print "Adding grocery item"
         add_grocery_item(trello_api, barcode_rule['item'])
         continue
 
     # Get the item's description
     u = UPCAPI(conf.get()['digiteyes_app_key'], conf.get()['digiteyes_auth_key'])
     try:
+        print "Attempting to fetch a description..."
         desc = u.get_description(barcode)
         print "Received description '{0}' for barcode {1}".format(desc, repr(barcode))
     except urllib2.HTTPError, e:
@@ -216,7 +227,13 @@ while True:
             publish_barcode_opp(opp)
             continue
         else:
+            print "RAISING ERROR :: "
+            print str(e.msg)
             raise
+    except ValueError, ve:
+        print "Caught Value Error :: "
+        desc = ''
+        continue        ## TODO Fix this stuff here
 
     # Match against description rules
     desc_rule = match_description_rule(trello_db, desc)

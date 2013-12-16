@@ -1,7 +1,7 @@
 var Trello = require('node-trello');
-var oscar_conf = require('./conf').conf;
+var oliver_conf = require('./conf').conf;
 
-var trello_api = new Trello(oscar_conf['trello_app_key'], oscar_conf['trello_token']);
+var trello_api = new Trello(oliver_conf['trello_app_key'], oliver_conf['trello_token']);
 
 // Turns Trello into a DB.
 function TrelloDB() {
@@ -16,7 +16,7 @@ function TrelloDB() {
       return;
     }
 
-    trello_api.get('1/board/' + oscar_conf['trello_db_board'] + '/lists', function(err, data) {
+    trello_api.get('1/board/' + oliver_conf['trello_db_board'] + '/lists', function(err, data) {
       var db_lists = data.filter(function(db_list) {return (db_list['name'] == table_name)});
 
       if (db_lists.length == 0) {
