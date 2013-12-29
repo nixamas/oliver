@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-"""Initial setup script for Oscar. Run it on the device where Oscar will be running.
+"""Initial setup script for Oliver. Run it on the device where Oliver will be running.
 
-   https://github.com/danslimmon/oscar"""
+   https://github.com/nixamas/oliver"""
 
 import os
 import sys
 import subprocess
 import re
-import json
 
 
 def run_command(command):
@@ -16,7 +15,7 @@ def run_command(command):
         print line,
 
 
-print "Let's set up Oscar."
+print "Let's set up Oliver."
 print
 print "This script is tested on Raspbian. If you're running something else, I'd"
 print "love a pull request to adapt it to your situation!"
@@ -29,20 +28,22 @@ if os.getuid() != 0:
     print
     sys.exit(1)
 
+mode=''
+while mode != 'i' and mode != 'u':
+    mode=raw_input('Choose script mode Install [i] or Update [u] :')
+print "You chose : " + mode
 
 ######################################## Digit-Eyes
-print "You need accounts with a few APIs to use Oscar. First of all,"
+print "You need accounts with a few APIs to use Oliver. First of all,"
 print "go to"
 print
 print "    http://www.digit-eyes.com"
 print
-print "and sign up for an account there. This is the database that Oscar uses to"
+print "and sign up for an account there. This is the database that Oliver uses to"
 print "match barcodes with names of products. When you're ready, enter your"
 print "API credentials. They can be found on the \"My Account\" page."
 print
-digiteyes_app_key = raw_input('App Key("K" Code): ')
-# Make sure slashes are included:
-digiteyes_app_key = '/' + digiteyes_app_key.strip('/') + '/'
+digiteyes_app_key = raw_input('App Key ("K" Code): ')
 digiteyes_auth_key = raw_input('Authorization Key ("M" Code): ')
 
 
@@ -55,7 +56,7 @@ print "    https://trello.com"
 print
 print "Once you have an account, go to this URL:"
 print
-print "    https://trello.com/1/authorize?key={0}&name=oscar&expiration=never&response_type=token&scope=read,write".format(trello_app_key)
+print "    https://trello.com/1/authorize?key={0}&name=oliver&expiration=never&response_type=token&scope=read,write".format(trello_app_key)
 print 
 print "You'll be shown a 'token'; enter it below."
 print
@@ -68,42 +69,82 @@ print "First create a board called 'Groceries', and enter its URL here:"
 print
 trello_grocery_board_url = raw_input('Grocery Board URL: ')
 print
-print "And now create a board called 'trello_db', and enter its URL here:"
+print "And now create a board called 'oliver_db', and enter its URL here:"
 print
 trello_db_board_url = raw_input('Trello DB board URL: ')
 
 # Get the board IDs from their URLs
+#m = re.search('/b/([^/]+)', trello_grocery_board_url)
+#trello_grocery_board = m.group(1)
+#m = re.search('/b/([^/]+)', trello_db_board_url)
+#trello_db_board = m.group(1)
 m = re.findall('/b/(.*)[\/]', trello_grocery_board_url )
 trello_grocery_board = m.pop()
 m = re.findall('/b/(.*)[\/]', trello_db_board_url)
 trello_db_board = m.pop()
 trello_grocery_list = 'Groceries'
 
+######################################## Communication
+print
+print "Oliver can email or text you when it scans something it doesn't recognize. This"
+print "gives you the opportunity to teach Oliver about items you frequently buy."
+print "Please choose whether you want Oliver to email or text you by typing 'email' or 'text'."
+print
+communication_method = raw_input("Communication method ('email' or 'text'): ")
+while communication_method not in ['email', 'text']:
+    communication_method = raw_input("Please input 'email' or 'text': ")
+## initialize all communication variables    
+gmail_user=''
+gmail_password=''
+gmail_dest=''
+twilio_src=''
+twilio_sid=''
+twilio_token=''
+twilio_dest=''
+if communication_method == 'email':
+    ######################################## Email
+    print
+    print "To enable this functionality using email as the communication method, "
+    print "you need an account with GMail:"
+    print
+    print "    https://mail.google.com/"
+    print
+    print "If you want to, you can sign up for a GMail account and enter your"
+    print "information below. If not, no sweat: just leave the input blank. You"
+    print "can always come back and modify Oliver's config file later."
+    print
+    gmail_user = raw_input('GMail Email Address: ')
+    if gmail_user != '':
+        gmail_password = raw_input('GMail Password: ')
+        email_dest = raw_input('Destination email (the address you want emailed): ')
+    else:
+        gmail_password = ''
+        email_dest = ''
 
-######################################## Twilio
-print
-print "Oscar can text you when it scans something it doesn't recognize. This"
-print "gives you the opportunity to teach Oscar about items you frequently buy."
-print "To enable this functionality, you need an account with Twilio:"
-print
-print "    https://www.twilio.com/"
-print
-print "If you want to, you can sign up for a Twilio account and enter your"
-print "information below. If not, no sweat: just leave the input blank. You"
-print "can always come back and modify Oscar's config file later."
-print
-twilio_src = raw_input('Twilio number: ')
-if twilio_src != '':
-    twilio_sid = raw_input('Twilio SID: ')
-    twilio_token = raw_input('Twilio token: ')
-    twilio_dest = raw_input('Destination number (the number you want texted): ')
 else:
-    twilio_sid = ''
-    twilio_token = ''
-    twilio_dest = ''
-# Remove any non-digits from phone numbers
-twilio_src = re.sub('\D', '', twilio_src)
-twilio_dest = re.sub('\D', '', twilio_dest)
+    ######################################## Twilio
+    print
+    print "To enable this functionality using text as the communication method, "
+    print "you need an account with Twilio:"
+    print
+    print "    https://www.twilio.com/"
+    print
+    print "If you want to, you can sign up for a Twilio account and enter your"
+    print "information below. If not, no sweat: just leave the input blank. You"
+    print "can always come back and modify Oliver's config file later."
+    print
+    twilio_src = raw_input('Twilio number: ')
+    if twilio_src != '':
+        twilio_sid = raw_input('Twilio SID: ')
+        twilio_token = raw_input('Twilio token: ')
+        twilio_dest = raw_input('Destination number (the number you want texted): ')
+    else:
+        twilio_sid = ''
+        twilio_token = ''
+        twilio_dest = ''
+    # Remove any non-digits from phone numbers
+    twilio_src = re.sub('\D', '', twilio_src)
+    twilio_dest = re.sub('\D', '', twilio_dest)
 
 
 ######################################## Scanner
@@ -124,71 +165,83 @@ print "you're ready. Press 'Ctrl+C' to cancel."
 print
 raw_input('Press enter when ready: ')
 
-
-######################################## oscar_scan dependencies
-run_command('easy_install pip')
-run_command('pip install PyYAML trello')
-
-
-######################################## oscar_web dependencies
-run_command('wget http://nodejs.org/dist/v0.10.22/node-v0.10.22.tar.gz')
-run_command('tar xzvf node-v0.10.22.tar.gz')
-os.chdir('node-v0.10.22')
-run_command('./configure')
-run_command('make')
-run_command('make install')
-os.chdir('..')
+if mode == 'i':
+    ######################################## oliver_scan dependencies
+    run_command('apt-get install python-setuptools')
+    run_command('easy_install pip')
+    run_command('pip install PyYAML trello twilio')
 
 
-######################################## Dependencies of both
-run_command('apt-get update')
-run_command('apt-get install git supervisor')
+    ######################################## oliver_web dependencies
+    run_command('wget http://nodejs.org/dist/v0.10.22/node-v0.10.22.tar.gz')    
+    run_command('tar xzvf node-v0.10.22.tar.gz')
+    os.chdir('node-v0.10.22')
+    run_command('./configure')
+    run_command('make')
+    run_command('make install')
+    os.chdir('..')
 
 
-######################################## Oscar itself
-os.chdir('/var')
-run_command('git clone https://github.com/danslimmon/oscar.git')
-os.chdir('/var/oscar/web')
-run_command('npm install')
+    ######################################## Dependencies of both
+    run_command('apt-get update')
+    run_command('apt-get install git supervisor')
 
 
-######################################## Create the appropriate Trello lists
-import trello
-trello_api = trello.TrelloApi(trello_app_key)
-trello_api.set_token(trello_token)
-# Grocery list
-trello_api.boards.new_list(trello_grocery_board, 'Groceries')
-# oscar_db lists
-for db_list in ['description_rules', 'barcode_rules', 'learning_opportunities']:
-    trello_api.boards.new_list(trello_db_board, db_list)
+    ######################################## Oliver itself
+    #os.chdir('/var')
+    #run_command('git clone https://github.com/danslimmon/oliver.git')
+    print "Ommitting  cloning from upstream master"
+    #os.chdir('/var/oliver/web')
+    os.chdir('web')
+    run_command('npm install')
+    print "Oliver Web component installed"
 
 
-######################################## Create the default description rules
-new_rules = [
-    {'search_term': 'coffee', 'item': 'coffee'},
-    {'search_term': 'soymilk', 'item': 'soy milk'},
-    {'search_term': 'soy milk', 'item': 'soy milk'},
-    {'search_term': 'soy sauce', 'item': 'soy sauce'},
-    {'search_term': 'beer', 'item': 'beer'},
-    {'search_term': 'ale', 'item': 'beer'},
-    {'search_term': 'sriracha', 'item': 'sriracha'},
-    {'search_term': 'milk', 'item': 'milk'},
-    {'search_term': 'olive oil', 'item': 'olive oil'},
-    {'search_term': 'cereal', 'item': 'cereal'},
-    {'search_term': 'peanut butter', 'item': 'peanut butter'},
-]
-os.chdir('/var/oscar')
-from lib import trellodb
-trello_db = trellodb.TrelloDB(trello_api, trello_db_board)
-for rule in new_rules:
-    trello_db.insert('description_rules', rule)
+    ######################################## Create the appropriate Trello lists
+    import trello
+    trello_api = trello.TrelloApi(trello_app_key)
+    trello_api.set_token(trello_token)
+    # Grocery list
+    trello_api.boards.new_list(trello_grocery_board, 'Groceries')
+    # oliver_db lists
+    for db_list in ['description_rules', 'barcode_rules', 'learning_opportunities']:
+        trello_api.boards.new_list(trello_db_board, db_list)
 
 
-######################################## Oscar configs
-oscar_yaml = open('/etc/oscar.yaml', 'w')
-oscar_yaml.write('''---
+    ######################################## Create the default description rules
+    new_rules = [
+        {'search_term': 'coffee', 'item': 'coffee'},
+        {'search_term': 'soymilk', 'item': 'soy milk'},
+        {'search_term': 'soy milk', 'item': 'soy milk'},
+        {'search_term': 'soy sauce', 'item': 'soy sauce'},
+        {'search_term': 'beer', 'item': 'beer'},
+        {'search_term': 'ale', 'item': 'beer'},
+        {'search_term': 'sriracha', 'item': 'sriracha'},
+        {'search_term': 'milk', 'item': 'milk'},
+        {'search_term': 'cereal', 'item': 'cereal'},
+        {'search_term': 'peanut butter', 'item': 'peanut butter'},
+    ]
+    os.chdir('/var/oliver')
+    from lib import trellodb
+    trello_db = trellodb.TrelloDB(trello_api, trello_db_board)
+    for rule in new_rules:
+        trello_db.insert('description_rules', rule)
+
+elif mode == 'u':
+    print "User chose to update configuration, skipping installation components"
+    print "Writing configuration files"
+
+######################################## Oliver configs
+oliver_yaml = open('/etc/oliver.yaml', 'w')
+oliver_yaml.write('''---
 port: 80
 scanner_device: '{scanner_device}'
+
+communication_method: '{communication_method}'
+
+gmail_user: '{gmail_user}'
+gmail_password: '{gmail_password}'
+email_dest: '{email_dest}'
 
 twilio_src: '{twilio_src}'
 twilio_dest: '{twilio_dest}'
@@ -204,24 +257,24 @@ trello_db_board: '{trello_db_board}'
 digiteyes_app_key: '{digiteyes_app_key}'
 digiteyes_auth_key: '{digiteyes_auth_key}'
 '''.format(**locals()))
-oscar_yaml.close()
+oliver_yaml.close()
 
-sup_oscar_scan = open('/etc/supervisor/conf.d/oscar_scan.conf', 'w')
-sup_oscar_scan.write('''[program:oscar_scan]
+sup_oliver_scan = open('/etc/supervisor/conf.d/oliver_scan.conf', 'w')
+sup_oliver_scan.write('''[program:oliver_scan]
 
-command=python /var/oscar/scan.py
-stdout_logfile=/var/log/supervisor/oscar_scan.log
+command=python /var/oliver/scan.py
+stdout_logfile=/var/log/supervisor/oliver_scan.log
 redirect_stderr=true''')
-sup_oscar_scan.close()
+sup_oliver_scan.close()
 
-sup_oscar_web = open('/etc/supervisor/conf.d/oscar_web.conf', 'w')
-sup_oscar_web.write('''[program:oscar_web]
+sup_oliver_web = open('/etc/supervisor/conf.d/oliver_web.conf', 'w')
+sup_oliver_web.write('''[program:oliver_web]
 
-command=/usr/local/bin/node --debug /var/oscar/web/app.js
-directory=/var/oscar/web
-stdout_logfile=/var/log/supervisor/oscar_web.log
+command=/usr/local/bin/node --debug /var/oliver/web/app.js
+directory=/var/oliver/web
+stdout_logfile=/var/log/supervisor/oliver_web.log
 redirect_stderr=true''')
-sup_oscar_web.close()
+sup_oliver_web.close()
 
 run_command('supervisorctl reload')
 
@@ -233,15 +286,15 @@ print
 print '    {0}'.format(trello_grocery_board_url)
 print
 print 'If everything worked, then you should be able to start scanning'
-print 'barcodes with oscar. Check out the logs of the scanner process and'
+print 'barcodes with oliver. Check out the logs of the scanner process and'
 print 'the web app, respectively, at'
 print
-print '    /var/lib/supervisor/log/oscar_scan.log'
-print '    /var/lib/supervisor/log/oscar_web.log'
+print '    /var/lib/supervisor/log/oliver_scan.log'
+print '    /var/lib/supervisor/log/oliver_web.log'
 print
-print 'And report any bugs at https://github.com/danslimmon/oscar/issues.'
+print 'And report any bugs at https://github.com/danslimmon/oliver/issues.'
 print
 print 'To add new product description keywords, the current method is to'
-print 'edit the oscar_db board directly. This should change soon with #5.'
+print 'edit the oliver_db board directly. This should change soon with #5.'
 print
 print 'Enjoy!'

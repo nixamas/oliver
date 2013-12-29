@@ -2,7 +2,7 @@ import yaml
 
 class Conf:
     def __init__(self):
-        self._conf_dict = yaml.load(open('/etc/oscar.yaml').read())
+        self._conf_dict = yaml.load(open('/etc/oliver.yaml').read())
 
     def get(self):
         return self._conf_dict
