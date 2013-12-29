@@ -52,10 +52,10 @@ app.param('opp_id', function(req, res, next, id) {
                   });
 });
 
-app.get('/', function(req, res){
-	  res.send('hello oliver');
-});
-
+app.get('/', routes.show_home);
+app.get('/see-grocery-list', routes.see_groceries);
+app.post('/add-grocery-item', routes.add_grocery_item);
+app.get('/empty-grocery-list', routes.remove_groceries);
 app.get('/learn-barcode/:opp_id', routes.learn_barcode);
 app.post('/submit-learn-barcode', routes.submit_learn_barcode);
 

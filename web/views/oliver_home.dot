@@ -1,0 +1,36 @@
+<div class='container text-center'>
+  <h1>Oliver</h1>
+
+  <div class='row span12'>
+    <p>Hello, I am Oliver. Here you can see your current grocery list, empty your list, or add an item to list.</p>
+
+  <hr>
+
+  <form action='/see-grocery-list' role='form'>
+      <div class='form-group'>
+          <input id='see-grocery-list', class='form-control' type='submit', value='My Grocery List', name='see-grocery-list'/>
+      </div>
+  </form>
+
+  <hr>
+
+  <form action='/add-grocery-item' method='post' role='form'>
+      <div class='form-group'>
+          <textarea id='item' class='form-control xxlarge' value='' name='item' autocapitalize='off'></textarea>
+      </div>
+      <div class='form-group'>
+          <input id='add-grocery-item', class='form-control' type='submit', value='Add Item', name='add-grocery-item'/>
+      </div>
+  </form>
+
+  <br>
+  <br>
+  <hr>
+
+  <form action='/empty-grocery-list' role='form'>
+      <div class='form-group'>
+          <input id='etmpy-grocery-list', class='form-control' type='submit', value='Empty Grocery List', name='empty-grocery-list' style="background-color:red"/>
+      </div>
+  </form>
+
+</div>
