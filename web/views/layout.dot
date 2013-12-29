@@ -16,4 +16,9 @@
   <body>
     {{= it.body}}
   </body>
+  <footer>
+    <br>
+    <hr>
+    <a class='text-center' href="/">Oliver Home</a>
+  </footer>
 </html>

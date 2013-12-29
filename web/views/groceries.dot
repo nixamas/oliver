@@ -1,0 +1,9 @@
+<div class='container text-center'>
+  <h1>Oliver: Groceries</h1>
+  <hr>
+  {{? it.groceries }}
+    {{~it.groceries :value:index}}
+      <div><h4>{{=value}}</h4></div>
+    {{~}}
+  {{?}}
+</div>

@@ -1,0 +1,10 @@
+<div class='container text-center'>
+  <div class='row span12'>
+    <p>Action was successful. Press button below to return to homepage</p>
+  </div>
+    <form action='/' role='form'>
+        <div class='form-group'>
+             <input class='form-control' type='submit' value='Return Home'/>
+        </div>
+    </form>
+</div>
